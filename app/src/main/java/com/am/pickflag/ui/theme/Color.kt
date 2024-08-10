@@ -2,10 +2,8 @@ package com.am.pickflag.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val Genoa = Color(0xFF117C6F)
+val JungleGreen = Color(0xFF289C8E)
+val Shamroak = Color(0xFF2FC4B2)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val Riptide = Color(0xFF8DE5DB)
