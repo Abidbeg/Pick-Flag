@@ -2,6 +2,7 @@ package com.am.pickflag.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,9 +14,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -26,6 +32,25 @@ import com.am.pickflag.R
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
+    var showPopup by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+
+    var countryName = arrayOf(
+        "Andorra",
+        "United Arab Emirates",
+        "Afghanistan",
+        "Antigua and Barbuda",
+        "Anguilla",
+        "Albania",
+        "Armenia",
+        "Angola"
+    )
+
+    var randomArray = arrayOf((0..7).random(), (0..7).random(), (0..7).random())
+    var pickTheName = (0..2).random()
+
     Box(
         modifier
             .fillMaxWidth()
@@ -52,7 +77,6 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
         Box(
             modifier
-
                 .align(Alignment.Center)
                 .padding(top = 100.dp)
                 .clip(shape = RoundedCornerShape(8.dp))
@@ -64,7 +88,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             ) {
                 Text(text = "Tap the flag of", color = colorResource(id = R.color.white))
                 Text(
-                    text = "India",
+                    text = countryName[randomArray[pickTheName]],
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 24.sp,
                 )
@@ -72,10 +96,11 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 Image(
                     modifier = modifier
                         .width(200.dp)
-                        .height(150.dp),
+                        .height(150.dp)
+                        .clickable { showPopup = true },
                     contentScale = ContentScale.Fit,
-                    painter = painterResource(id = R.drawable.`in`),
-                    contentDescription = "flag1"
+                    painter = painterResource(id = R.drawable.ic_launcher_background),
+                    contentDescription = countryName[randomArray[0]]
                 )
                 Spacer(modifier.height(5.dp))
                 Image(
@@ -83,8 +108,8 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                         .width(200.dp)
                         .height(150.dp),
                     contentScale = ContentScale.Fit,
-                    painter = painterResource(id = R.drawable.pk),
-                    contentDescription = "flag2"
+                    painter = painterResource(id = R.drawable.ic_launcher_background),
+                    contentDescription = countryName[randomArray[1]]
                 )
                 Spacer(modifier.height(5.dp))
                 Image(
@@ -92,13 +117,28 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                         .width(200.dp)
                         .height(150.dp),
                     contentScale = ContentScale.Fit,
-                    painter = painterResource(id = R.drawable.au),
-                    contentDescription = "flag3"
+                    painter = painterResource(id = R.drawable.ic_launcher_background),
+                    contentDescription = countryName[randomArray[2]]
                 )
                 Spacer(modifier.height(5.dp))
 
             }
         }
+        if (showPopup) {
+            Box(
+                modifier
+                    .align(Alignment.Center)
+                    .height(100.dp)
+                    .width(250.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.LightGray), contentAlignment = Alignment.Center
+            )
+            {
+//                if ()
+                PopupScreen()
+            }
+        }
     }
-
 }
+
+
