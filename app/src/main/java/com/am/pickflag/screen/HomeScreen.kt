@@ -7,13 +7,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -23,12 +27,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import coil.decode.SvgDecoder
+import coil.request.ImageRequest
 import com.am.pickflag.R
+import com.am.pickflag.viewmodel.CountryFlagViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
@@ -36,17 +47,9 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         mutableStateOf(false)
     }
 
+    val countryViewModel: CountryFlagViewModel = hiltViewModel()
+    val countryList = countryViewModel.flagList.collectAsState()
 
-    var countryName = arrayOf(
-        "Andorra",
-        "United Arab Emirates",
-        "Afghanistan",
-        "Antigua and Barbuda",
-        "Anguilla",
-        "Albania",
-        "Armenia",
-        "Angola"
-    )
 
     var randomArray = arrayOf((0..7).random(), (0..7).random(), (0..7).random())
     var pickTheName = (0..2).random()
@@ -82,46 +85,57 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 .clip(shape = RoundedCornerShape(8.dp))
                 .background(colorResource(id = R.color.white).copy(alpha = 0.5f))
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = modifier.padding(start = 48.dp, end = 48.dp)
-            ) {
-                Text(text = "Tap the flag of", color = colorResource(id = R.color.white))
-                Text(
-                    text = countryName[randomArray[pickTheName]],
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = 24.sp,
-                )
-                Text(text = "Round 2/3", color = colorResource(id = R.color.white))
-                Image(
-                    modifier = modifier
-                        .width(200.dp)
-                        .height(150.dp)
-                        .clickable { showPopup = true },
-                    contentScale = ContentScale.Fit,
-                    painter = painterResource(id = R.drawable.ic_launcher_background),
-                    contentDescription = countryName[randomArray[0]]
-                )
-                Spacer(modifier.height(5.dp))
-                Image(
-                    modifier = modifier
-                        .width(200.dp)
-                        .height(150.dp),
-                    contentScale = ContentScale.Fit,
-                    painter = painterResource(id = R.drawable.ic_launcher_background),
-                    contentDescription = countryName[randomArray[1]]
-                )
-                Spacer(modifier.height(5.dp))
-                Image(
-                    modifier = modifier
-                        .width(200.dp)
-                        .height(150.dp),
-                    contentScale = ContentScale.Fit,
-                    painter = painterResource(id = R.drawable.ic_launcher_background),
-                    contentDescription = countryName[randomArray[2]]
-                )
-                Spacer(modifier.height(5.dp))
+            if (countryList.value.data.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(1f), contentAlignment = Alignment.Center) {
+                    Text(text = "Loading...", style = MaterialTheme.typography.bodyLarge)
+                }
+            } else {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = modifier.padding(start = 48.dp, end = 48.dp)
+                ) {
+                    Text(text = "Tap the flag of", color = colorResource(id = R.color.white))
+                    Text(
+                        text = countryList.value.data[3].name,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 24.sp,
+                    )
+                    Text(text = "Round 2/3", color = colorResource(id = R.color.white))
+                    AsyncImage(
+                        modifier = modifier
+                            .width(200.dp)
+                            .height(150.dp),
 
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(countryList.value.data[2].flag)
+                            .decoderFactory(SvgDecoder.Factory()).build(),
+                        contentDescription = countryList.value.data[2].name
+                    )
+                    Spacer(modifier.height(5.dp))
+                    AsyncImage(
+                        modifier = modifier
+                            .width(200.dp)
+                            .height(150.dp),
+
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(countryList.value.data[3].flag)
+                            .decoderFactory(SvgDecoder.Factory()).build(),
+                        contentDescription = countryList.value.data[3].name
+                    )
+                    Spacer(modifier.height(5.dp))
+                    AsyncImage(
+                        modifier = modifier
+                            .width(200.dp)
+                            .height(150.dp),
+                        contentScale = ContentScale.Fit,
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(countryList.value.data[4].flag)
+                            .decoderFactory(SvgDecoder.Factory()).build(),
+                        contentDescription = countryList.value.data[4].name
+                    )
+                    Spacer(modifier.height(5.dp))
+
+                }
             }
         }
         if (showPopup) {
