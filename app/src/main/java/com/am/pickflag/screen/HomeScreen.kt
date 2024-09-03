@@ -51,7 +51,11 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     val countryList = countryViewModel.flagList.collectAsState()
 
 
-    var randomArray = arrayOf((0..7).random(), (0..7).random(), (0..7).random())
+    var randomArray = arrayOf(
+        (0..countryList.value.data.size).random(),
+        (0..countryList.value.data.size).random(),
+        (0..countryList.value.data.size).random()
+    )
     var pickTheName = (0..2).random()
 
     Box(
@@ -60,22 +64,15 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             .fillMaxHeight()
             .background(colorResource(id = R.color.teal_700))
     ) {
-        Box(
-            modifier
-                .fillMaxWidth()
-                .clip(shape = RoundedCornerShape(bottomStart = 140.dp, bottomEnd = 140.dp))
-                .background(color = colorResource(R.color.teal_200))
-        ) {
-            Column(modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "PICK THE FLAG",
-                    modifier.padding(top = 120.dp, bottom = 50.dp),
-                    fontSize = (18.sp),
-                    fontWeight = FontWeight.Bold,
-                    color = colorResource(id = R.color.white)
-                )
-            }
 
+        Column(modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "PICK THE FLAG",
+                modifier.padding(top = 120.dp, bottom = 50.dp),
+                fontSize = (18.sp),
+                fontWeight = FontWeight.Bold,
+                color = colorResource(id = R.color.white)
+            )
         }
 
         Box(
@@ -96,7 +93,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 ) {
                     Text(text = "Tap the flag of", color = colorResource(id = R.color.white))
                     Text(
-                        text = countryList.value.data[3].name,
+                        text = countryList.value.data[randomArray[pickTheName]].name,
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = 24.sp,
                     )
@@ -105,22 +102,11 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                         modifier = modifier
                             .width(200.dp)
                             .height(150.dp),
-
+                        contentScale = ContentScale.Fit,
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(countryList.value.data[2].flag)
+                            .data(countryList.value.data[randomArray[0]].flag)
                             .decoderFactory(SvgDecoder.Factory()).build(),
-                        contentDescription = countryList.value.data[2].name
-                    )
-                    Spacer(modifier.height(5.dp))
-                    AsyncImage(
-                        modifier = modifier
-                            .width(200.dp)
-                            .height(150.dp),
-
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(countryList.value.data[3].flag)
-                            .decoderFactory(SvgDecoder.Factory()).build(),
-                        contentDescription = countryList.value.data[3].name
+                        contentDescription = countryList.value.data[randomArray[0]].name
                     )
                     Spacer(modifier.height(5.dp))
                     AsyncImage(
@@ -129,16 +115,37 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                             .height(150.dp),
                         contentScale = ContentScale.Fit,
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(countryList.value.data[4].flag)
+                            .data(countryList.value.data[randomArray[1]].flag)
                             .decoderFactory(SvgDecoder.Factory()).build(),
-                        contentDescription = countryList.value.data[4].name
+                        contentDescription = countryList.value.data[randomArray[1]].name
+                    )
+                    Spacer(modifier.height(5.dp))
+                    AsyncImage(
+                        modifier = modifier
+                            .width(200.dp)
+                            .height(150.dp)
+                            .clickable { showPopup = true },
+                        contentScale = ContentScale.Fit,
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(countryList.value.data[randomArray[2]].flag)
+                            .decoderFactory(SvgDecoder.Factory()).build(),
+                        contentDescription = countryList.value.data[randomArray[2]].name
                     )
                     Spacer(modifier.height(5.dp))
 
                 }
             }
         }
-        if (showPopup) {
+    }
+
+
+    if (showPopup) {
+        Box(
+            modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .background(color = Color.Transparent)
+        ) {
             Box(
                 modifier
                     .align(Alignment.Center)
@@ -148,7 +155,6 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     .background(Color.LightGray), contentAlignment = Alignment.Center
             )
             {
-//                if ()
                 PopupScreen()
             }
         }
