@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.am.pickflag.screen.HomeScreen
-import com.am.pickflag.ui.theme.PickFlagTheme
+import com.example.unscramble.ui.theme.PickFlagTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
