@@ -1,35 +1,35 @@
 package com.am.pickflag.screen
 
-import androidx.compose.foundation.Image
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,31 +38,20 @@ import coil.compose.AsyncImage
 import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import com.am.pickflag.R
+import com.am.pickflag.data.MAX_NO_OF_ROUND
 import com.am.pickflag.viewmodel.CountryFlagViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
-    var showPopup by rememberSaveable {
-        mutableStateOf(false)
-    }
-
     val countryViewModel: CountryFlagViewModel = hiltViewModel()
-    val countryList = countryViewModel.flagList.collectAsState()
+    val flagUiState by countryViewModel.uiState.collectAsState()
 
-
-    var randomArray = arrayOf(
-        (0..countryList.value.data.size).random(),
-        (0..countryList.value.data.size).random(),
-        (0..countryList.value.data.size).random()
-    )
-    var pickTheName = (0..2).random()
 
     Box(
         modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .background(colorResource(id = R.color.teal_700))
+            .background(colorResource(id = R.color.purple_200))
     ) {
 
         Column(modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -82,7 +71,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 .clip(shape = RoundedCornerShape(8.dp))
                 .background(colorResource(id = R.color.white).copy(alpha = 0.5f))
         ) {
-            if (countryList.value.data.isEmpty()) {
+            if (flagUiState.currentViewFlags.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(1f), contentAlignment = Alignment.Center) {
                     Text(text = "Loading...", style = MaterialTheme.typography.bodyLarge)
                 }
@@ -91,45 +80,59 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = modifier.padding(start = 48.dp, end = 48.dp)
                 ) {
-                    Text(text = "Tap the flag of", color = colorResource(id = R.color.white))
+                    Text(text = "Tap the flag of", color = colorResource(id = R.color.black))
+                    Spacer(modifier.height(8.dp))
                     Text(
-                        text = countryList.value.data[randomArray[pickTheName]].name,
+                        text = countryViewModel.currentFlag,
                         fontWeight = FontWeight.ExtraBold,
-                        fontSize = 24.sp,
+                        style = typography.titleLarge,
                     )
-                    Text(text = "Round 2/3", color = colorResource(id = R.color.white))
+                    Spacer(modifier.height(8.dp))
+                    Row {
+                        Text(
+                            text = "Round ${flagUiState.currentRound}/10",
+                            color = colorResource(id = R.color.black)
+                        )
+                        Spacer(modifier.width(50.dp))
+                        Text(
+                            text = "Score: ${flagUiState.score}",
+                            color = colorResource(id = R.color.black)
+                        )
+                    }
                     AsyncImage(
                         modifier = modifier
                             .width(200.dp)
-                            .height(150.dp),
+                            .height(150.dp)
+                            .clickable { countryViewModel.checkUserGuess(flagUiState.currentViewFlags[0].name) },
                         contentScale = ContentScale.Fit,
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(countryList.value.data[randomArray[0]].flag)
+                            .data(flagUiState.currentViewFlags[0].flag)
                             .decoderFactory(SvgDecoder.Factory()).build(),
-                        contentDescription = countryList.value.data[randomArray[0]].name
-                    )
-                    Spacer(modifier.height(5.dp))
-                    AsyncImage(
-                        modifier = modifier
-                            .width(200.dp)
-                            .height(150.dp),
-                        contentScale = ContentScale.Fit,
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(countryList.value.data[randomArray[1]].flag)
-                            .decoderFactory(SvgDecoder.Factory()).build(),
-                        contentDescription = countryList.value.data[randomArray[1]].name
+                        contentDescription = flagUiState.currentViewFlags[0].name
                     )
                     Spacer(modifier.height(5.dp))
                     AsyncImage(
                         modifier = modifier
                             .width(200.dp)
                             .height(150.dp)
-                            .clickable { showPopup = true },
+                            .clickable { countryViewModel.checkUserGuess(flagUiState.currentViewFlags[1].name) },
                         contentScale = ContentScale.Fit,
                         model = ImageRequest.Builder(LocalContext.current)
-                            .data(countryList.value.data[randomArray[2]].flag)
+                            .data(flagUiState.currentViewFlags[1].flag)
                             .decoderFactory(SvgDecoder.Factory()).build(),
-                        contentDescription = countryList.value.data[randomArray[2]].name
+                        contentDescription = flagUiState.currentViewFlags[1].name
+                    )
+                    Spacer(modifier.height(5.dp))
+                    AsyncImage(
+                        modifier = modifier
+                            .width(200.dp)
+                            .height(150.dp)
+                            .clickable { countryViewModel.checkUserGuess(flagUiState.currentViewFlags[2].name) },
+                        contentScale = ContentScale.Fit,
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(flagUiState.currentViewFlags[2].flag)
+                            .decoderFactory(SvgDecoder.Factory()).build(),
+                        contentDescription = flagUiState.currentViewFlags[2].name
                     )
                     Spacer(modifier.height(5.dp))
 
@@ -138,27 +141,103 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         }
     }
 
-
-    if (showPopup) {
-        Box(
-            modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .background(color = Color.Transparent)
-        ) {
-            Box(
-                modifier
-                    .align(Alignment.Center)
-                    .height(100.dp)
-                    .width(250.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color.LightGray), contentAlignment = Alignment.Center
+    if (flagUiState.showPopup) {
+        if (flagUiState.currentRound == MAX_NO_OF_ROUND) {
+            FinalScoreDialog(
+                score = flagUiState.score,
+                onPlayAgain = { countryViewModel.resetGame() },
             )
-            {
-                PopupScreen()
-            }
+        } else {
+            ScoreDialog(
+                onPlayAgain = { countryViewModel.nextRound() },
+                userGuess = flagUiState.selectFlag
+            )
         }
     }
+}
+
+@Composable
+private fun ScoreDialog(
+    onPlayAgain: () -> Unit,
+    userGuess: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val activity = (LocalContext.current as Activity)
+
+    AlertDialog(
+        onDismissRequest = {
+            // Dismiss the dialog when the user clicks outside the dialog or on the back
+            // button. If you want to disable that functionality, simply use an empty
+            // onCloseRequest.
+        },
+        title = {
+            if (userGuess) {
+                Text(text = stringResource(R.string.congratulations))
+            } else {
+                Text(text = stringResource(R.string.wrong_guess))
+            }
+        },
+        text = {
+            if (userGuess) {
+                Text(text = stringResource(R.string.you_right))
+            } else {
+                Text(text = stringResource(R.string.you_wrong))
+            }
+        },
+        modifier = modifier,
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    activity.finish()
+                }
+            ) {
+                Text(text = stringResource(R.string.exit))
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onPlayAgain) {
+                Text(text = stringResource(R.string.next_round))
+            }
+        }
+    )
+}
+
+@Composable
+private fun FinalScoreDialog(
+    score: Int,
+    onPlayAgain: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val activity = (LocalContext.current as Activity)
+
+    AlertDialog(
+        onDismissRequest = {
+            // Dismiss the dialog when the user clicks outside the dialog or on the back
+            // button. If you want to disable that functionality, simply use an empty
+            // onCloseRequest.
+        },
+        title = {
+            Text(text = stringResource(R.string.game_over))
+        },
+        text = {
+            Text(text = stringResource(R.string.you_scored, score))
+        },
+        modifier = modifier,
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    activity.finish()
+                }
+            ) {
+                Text(text = stringResource(R.string.exit))
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onPlayAgain) {
+                Text(text = stringResource(R.string.play_again))
+            }
+        }
+    )
 }
 
 

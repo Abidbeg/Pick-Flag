@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Pick Flag</string>
+    <string name="congratulations">Congratulations!</string>
+    <string name="you_right">You are right, well play!</string>
+
+    <string name="sorry">Sorry!</string>
+    <string name="you_wrong">You are wrong, try others </string>
+    <string name="you_scored">"You scored: %d"</string>
+    <string name="play_again">Play Again</string>
+    <string name="next_round">Next Round</string>
+    <string name="game_over">Game Over</string>
+    <string name="wrong_guess">Wrong Guess!</string>
+    <string name="exit">Exit</string>
 </resources>
